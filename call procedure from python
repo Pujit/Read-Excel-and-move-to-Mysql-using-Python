@@ -1,0 +1,99 @@
+## For creation of holding table in mysql and inserting records using python.
+## second  test
+
+import pymysql
+import datetime
+import time
+import xlrd
+start = time.strftime('%X %x %Z')
+print(start)
+# Connect to the database.
+connection = pymysql.connect(host='localhost',user='root',
+                             password='Mysql_root_lib',                             
+                             db='world',
+                            )  
+ 
+print ("connect successful!!")
+cur=connection.cursor()
+cur.execute('Drop table if exists pyt_test')
+connection.commit()
+
+cur.execute("""create table pyt_test (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            Title   Varchar(4000)
+            ,SSID    varchar(255)
+            ,Title_Id int(11)
+            ,DatabasePackage  varchar(4000)
+            ,Provider   varchar(4000)
+            ,Status      varchar(255)
+            ,ISSN       varchar(12)
+            ,eISSN      varchar(12)
+            ,DateStart   varchar(25)
+            ,DateEnd varchar(25)
+            ,CustomStartDate  varchar(255)
+            ,CustomEndDate  varchar(255)
+            ,Subjects  varchar(4000)
+                            )""")
+connection.commit()
+#connection.close()
+
+
+book=xlrd.open_workbook("C:\\Users\\tu9419io\\Desktop\\WIP\\Holdings_EJournals_20171113.xlsx")
+sheet=book.sheet_by_index(0)
+total_rows=sheet.nrows
+total_cols=sheet.ncols
+cur=connection.cursor()
+for r in range(1,sheet.nrows):
+    v_Title =sheet.cell(r,0).value    
+    v_SSID =sheet.cell(r,1).value
+    v_TitleId =sheet.cell(r,2).value
+    v_Database =sheet.cell(r,3).value
+    v_Provider =sheet.cell(r,4).value
+    v_Status =sheet.cell(r,5).value
+    v_ISSN =sheet.cell(r,6).value
+    v_eISSN =sheet.cell(r,7).value
+    v_DateStart =sheet.cell(r,8).value
+    v_celltype=sheet.cell_type(r,8)
+    # print(v_celltype)
+    if v_celltype==3:
+        exceltime=sheet.cell_value(r,8)
+        time_tuple=xlrd.xldate_as_tuple(exceltime,0)
+        converted_datestart=datetime.datetime(*time_tuple)
+    else:
+        converted_datestart=v_DateStart
+    # convert excel date into date datatype
+    v_DateEnd =sheet.cell(r,9).value
+    v_celltype=sheet.cell_type(r,9)
+    
+    
+    if v_celltype==3:
+        exceltime=sheet.cell_value(r,9)
+        time_tuple=xlrd.xldate_as_tuple(exceltime,0)
+        converted_dateend=datetime.datetime(*time_tuple)
+    else:
+        converted_dateend=v_DateEnd
+    v_Custom_Start_Date=sheet.cell(r,10).value
+    v_Custom_End_Date=sheet.cell(r,11).value
+    v_Subjectscts=sheet.cell(r,12).value
+   #cur.execute("insert into   pyt values(%s,%s)")v_Title,v_SSID
+    t=(v_Title,v_SSID,v_TitleId,v_Database,v_Provider,v_Status,v_ISSN,v_eISSN,converted_datestart,converted_dateend,v_Custom_Start_Date,v_Custom_End_Date,v_Subjectscts)
+    sql= ("""INSERT INTO pyt_test(Title,SSID,Title_Id,DatabasePackage,Provider,Status,ISSN,eISSN,DateStart,DateEnd,CustomStartDate,CustomEndDate,Subjects) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""" )
+    cur.execute(sql,t)
+    connection.commit()
+    
+    
+end = time.strftime('%X %x %Z')
+print('Inserting data in the table completed')
+print('\n')
+#print(end)
+    
+print('exeution of sp started ')
+start = time.strftime('%X %x %Z')
+print(start)
+## calling the stored procedure in mysql from python     
+args=['pyt_test','Title']
+cur.callproc('Generic_ST',args)
+end= time.strftime('%X %x %Z')
+print(end)      
+connection.close()
+print('Script Ran Success')
+
