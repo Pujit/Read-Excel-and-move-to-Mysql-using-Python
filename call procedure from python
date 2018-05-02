@@ -1,5 +1,6 @@
 ## For creation of holding table in mysql and inserting records using python.
-## second  test
+## second  test in git 
+print('Test in git')
 
 import pymysql
 import datetime
