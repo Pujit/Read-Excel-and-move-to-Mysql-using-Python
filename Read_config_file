@@ -18,6 +18,4 @@ def ConfigSectionMap(section):
 
 
 
-Name = ConfigSectionMap("SectionOne")['name']
-Age = ConfigSectionMap("SectionOne")['age']
-print("Hello %s. You are %s years old."% (Name, Age))
+
